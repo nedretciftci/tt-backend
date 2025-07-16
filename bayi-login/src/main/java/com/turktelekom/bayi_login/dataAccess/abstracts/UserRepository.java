@@ -8,4 +8,8 @@ import com.turktelekom.bayi_login.entities.concretes.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByResetToken(String resetToken);
 }

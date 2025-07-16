@@ -9,14 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
-    private String username;
+public class ResetPasswordRequest {
+    @NotBlank(message = "Token is required")
+    private String token;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "New password is required")
     @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
-    private String password;
-
-    private boolean rememberMe;
+    private String newPassword;
 }
