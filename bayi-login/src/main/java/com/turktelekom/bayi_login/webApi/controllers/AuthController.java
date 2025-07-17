@@ -61,4 +61,14 @@ public class AuthController {
     public ResetPasswordResponse resetPassword(@RequestBody ResetPasswordRequest request) {
         return userService.resetPassword(request);
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout and clear remember-me cookie")
+    public void logout(HttpServletResponse response) {
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("remember-me", null);
+        cookie.setMaxAge(0); // Expire immediately
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+    }
 }

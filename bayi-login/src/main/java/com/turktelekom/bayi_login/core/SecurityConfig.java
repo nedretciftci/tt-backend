@@ -18,7 +18,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
-                                "/api/auth/reset-password")
+                                "/api/auth/reset-password",
+                                "/api/auth/logout")
                         .permitAll()
                         .anyRequest().authenticated());
         return http.build();
