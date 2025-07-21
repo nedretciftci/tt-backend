@@ -23,8 +23,8 @@ public class UserManager implements UserService {
     private final EmailService emailService;
 
     @Override
-    public Optional<User> login(String username, String password, boolean rememberMe) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
+    public Optional<User> login(String email, String password, boolean rememberMe) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
             return userOpt;
         }

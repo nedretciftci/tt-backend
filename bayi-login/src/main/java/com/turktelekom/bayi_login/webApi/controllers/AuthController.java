@@ -12,6 +12,7 @@ import com.turktelekom.bayi_login.business.requests.ForgotPasswordRequest;
 import com.turktelekom.bayi_login.business.responses.ForgotPasswordResponse;
 import com.turktelekom.bayi_login.business.requests.ResetPasswordRequest;
 import com.turktelekom.bayi_login.business.responses.ResetPasswordResponse;
+import com.turktelekom.bayi_login.core.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -22,15 +23,16 @@ import jakarta.servlet.http.HttpServletResponse;
 @AllArgsConstructor
 public class AuthController {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    @Operation(summary = "Login with username and password")
+    @Operation(summary = "Login with email and password")
     public LoginResponse login(@RequestBody LoginRequest request, HttpServletResponse response) {
-        return userService.login(request.getUsername(), request.getPassword(), request.isRememberMe())
+        return userService.login(request.getEmail(), request.getPassword(), request.isRememberMe())
                 .map(user -> {
                     if (request.isRememberMe()) {
                         jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("remember-me",
-                                user.getUsername());
+                                user.getEmail());
                         cookie.setMaxAge(60 * 60 * 24 * 30); // 30 days
                         cookie.setPath("/");
                         cookie.setHttpOnly(true);
@@ -40,12 +42,14 @@ public class AuthController {
                     loginResponse.setSuccess(true);
                     loginResponse.setMessage("Login successful");
                     loginResponse.setRole(user.getRole());
+                    String token = jwtUtil.generateToken(user.getEmail());
+                    loginResponse.setToken(token);
                     return loginResponse;
                 })
                 .orElseGet(() -> {
                     LoginResponse loginResponse = new LoginResponse();
                     loginResponse.setSuccess(false);
-                    loginResponse.setMessage("Invalid username or password");
+                    loginResponse.setMessage("Invalid email or password");
                     return loginResponse;
                 });
     }
