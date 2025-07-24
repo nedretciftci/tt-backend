@@ -14,6 +14,7 @@ public class LoginResponse {
     private String message;
     private UserRole role;
     private String token;
+    private String username;
 
     public boolean isSuccess() {
         return success;

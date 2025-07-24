@@ -1,6 +1,7 @@
 package com.turktelekom.bayi_login.business.concretes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,6 +43,11 @@ public class UserManager implements UserService {
     }
 
     @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public ForgotPasswordResponse forgotPassword(String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
@@ -73,5 +79,10 @@ public class UserManager implements UserService {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
         return new ResetPasswordResponse(true, "Password has been reset successfully.");
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

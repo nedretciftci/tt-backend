@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
+import io.jsonwebtoken.Claims;
 
 @Component
 public class JwtUtil {
@@ -36,5 +37,13 @@ public class JwtUtil {
                 .compact();
     }
 
-    // You can add token validation methods here if needed
+    public String extractUsername(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
 }

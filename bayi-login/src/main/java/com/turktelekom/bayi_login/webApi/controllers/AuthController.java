@@ -4,6 +4,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.RequestHeader;
+import java.util.List;
+import com.turktelekom.bayi_login.entities.concretes.UserRole;
 
 import com.turktelekom.bayi_login.business.abstracts.UserService;
 import com.turktelekom.bayi_login.business.requests.LoginRequest;
@@ -17,6 +24,7 @@ import com.turktelekom.bayi_login.core.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,6 +50,7 @@ public class AuthController {
                     loginResponse.setSuccess(true);
                     loginResponse.setMessage("Login successful");
                     loginResponse.setRole(user.getRole());
+                    loginResponse.setUsername(user.getUsername());
                     String token = jwtUtil.generateToken(user.getEmail());
                     loginResponse.setToken(token);
                     return loginResponse;
@@ -70,9 +79,31 @@ public class AuthController {
     @Operation(summary = "Logout and clear remember-me cookie")
     public void logout(HttpServletResponse response) {
         jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("remember-me", null);
-        cookie.setMaxAge(0); // Expire immediately
+        cookie.setMaxAge(0);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
+    }
+
+    @GetMapping("/profile/{username}")
+    @SecurityRequirement(name = "bearerAuth")
+    public com.turktelekom.bayi_login.entities.concretes.User getProfile(@PathVariable String username) {
+        return userService.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    @GetMapping("/users")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<com.turktelekom.bayi_login.entities.concretes.User> getAllUsers(
+            @RequestHeader("Authorization") String authHeader) {
+        // JWT'den rolü çözümle
+        String token = authHeader.replace("Bearer ", "");
+        String email = jwtUtil.extractUsername(token);
+        com.turktelekom.bayi_login.entities.concretes.User user = userService.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can access this endpoint");
+        }
+        return userService.getAllUsers();
     }
 }

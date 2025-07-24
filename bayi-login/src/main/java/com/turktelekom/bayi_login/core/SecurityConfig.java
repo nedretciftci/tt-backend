@@ -21,7 +21,9 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
-                                "/api/auth/logout")
+                                "/api/auth/logout",
+                                "/api/auth/profile/**",
+                                "/api/auth/users")
                         .permitAll()
                         .anyRequest().authenticated());
         return http.build();
